@@ -1,0 +1,22 @@
+name: Hello World CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🧾 Checkout code
+      uses: actions/checkout@v3
+
+    - name: 🧪 Run a dummy test
+      run: |
+        echo "Running fake test..."
+        echo "assert 1 == 1" | python
+
+    - name: 🎉 Success message
+      run: echo "🚀 Hello from GitHub Actions! CI is working!"
