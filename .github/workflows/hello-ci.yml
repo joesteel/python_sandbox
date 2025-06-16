@@ -13,10 +13,17 @@ jobs:
     - name: 🧾 Checkout code
       uses: actions/checkout@v3
 
-    - name: 🧪 Run a dummy test
+
+    - name: install dependencies
+      run: | 
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+        
+
+    - name: 🧪 Run a real test
       run: |
-        echo "Running fake test..."
-        echo "assert 1 == 1" | python
+        pytest
 
     - name: 🎉 Success message
       run: echo "🚀 Hello from GitHub Actions! CI is working!"
