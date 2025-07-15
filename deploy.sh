@@ -1,27 +1,50 @@
 #!/bin/bash
+
+source ../venv/bin/activate
 set -e
 
-log() {
-  echo -e "\033[0;32m$1\033[0m"
-}
-
-port=8000
-image_name="my-fast-api-container:latest"
-run_time_name="fastapi-app"
-
+source ./common.sh
 
 log "====== starting local deployment ======"
+open -a Docker
+
+log "====== installing dependencies locally ======"
+pip install --upgrade pip
+pip install --no-cache-dir -r requirements.txt
 
 log "✅ Running unit tests.... %f"
 pytest
 
 log "creating latest image... "
-docker build -t $image_name .
+docker build -t $FAPI_IMAGE_NAME .
 
 log "🧹cleaning up running containers"
-docker docker rm -f "$(docker ps | grep $run_time_name | awk 'NR==1{print $1}')" || true
+(
+  set +e
+  docker stop $FAPI_CONTAINER_NAME || true
+  docker rm $FAPI_CONTAINER_NAME || true
+  docker stop $DB_CONTAINER_NAME || true
+  docker rm $DB_CONTAINER_NAME || true
+)
 
-log "🚀 Starting new container..."
-docker run -d  --name $run_time_name -p $port:$port $image_name
+log "🚀 Starting new containers..."
+docker network create $NETWORK || true
 
-log "🌍 App is running at http://localhost:" $port
+docker run -d  --name $FAPI_CONTAINER_NAME --network $NETWORK \
+  -p $FAPI_LOCAL_PORT:$FAPI_LOCAL_PORT  \
+  -e DB_HOST=$DB_CONTAINER_NAME -e DB_USER=$DB_USER -e DB_PASS=$DB_PASS -e DB_NAME=$DB_NAME \
+  $FAPI_IMAGE_NAME
+
+docker run --name $DB_CONTAINER_NAME --network $NETWORK \
+  -e POSTGRES_PASSWORD=$DB_PASS -e POSTGRES_USER=$DB_USER -e POSTGRES_DB=$DB_NAME -p $POSTGRES_PORT:$POSTGRES_PORT -d $POSTGRES_IMAGE
+
+
+log "⏳ Waiting for PostgreSQL to be ready..."
+until docker exec $DB_CONTAINER_NAME pg_isready -U $DB_USER; do sleep 1; done
+
+log "🛠️ Initializing database..."
+PGPASSWORD=$DB_PASS psql -h localhost -U $DB_USER -d $DB_NAME -f init_db.sql
+
+
+log "🌍 App is running at http://localhost:" $LOCAL_PORT
+log "✅ Database ready."
