@@ -8,6 +8,9 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies
+RUN apt-get update \
+    && apt-get -y install libpq-dev gcc
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the app
