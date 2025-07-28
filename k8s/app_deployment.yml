@@ -14,7 +14,18 @@ spec:
     spec:
       containers:
       - name: fastapi
-        image: my-fastapi-app:latest
+        image: my-fast-api:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 8000
+        env :
+        - name: DB_PASS
+          value: "pass123"
+        - name: DB_USER
+          value: "aiuser"
+        - name: DB_NAME
+          value: "profiledb"
+        - name: DB_HOST
+          value: "profiledb-service"
+        - name: DB_PORT
+          value: "5432"

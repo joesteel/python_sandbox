@@ -1,8 +1,13 @@
 from fastapi import FastAPI, Response, Depends
 from source.dao.profile_dao import ProfileDao
 from source.models.profile import ProfileModel
+import logging
 
 app = FastAPI()
+logging.basicConfig(
+    level=logging.DEBUG,  # or INFO in production
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
 
 
 def get_dao():
