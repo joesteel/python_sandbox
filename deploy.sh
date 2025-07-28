@@ -45,6 +45,5 @@ until docker exec $DB_CONTAINER_NAME pg_isready -U $DB_USER; do sleep 1; done
 log "🛠️ Initializing database..."
 PGPASSWORD=$DB_PASS psql -h localhost -U $DB_USER -d $DB_NAME -f init_db.sql
 
-
 log "🌍 App is running at http://localhost:" $LOCAL_PORT
 log "✅ Database ready."
