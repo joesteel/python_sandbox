@@ -26,6 +26,6 @@ spec:
         - name: DB_NAME
           value: "profiledb"
         - name: DB_HOST
-          value: "profiledb-service"
+          value: "postgres-0.postgres.default.svc.cluster.local"
         - name: DB_PORT
           value: "5432"
