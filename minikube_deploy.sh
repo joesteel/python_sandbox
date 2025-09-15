@@ -3,19 +3,18 @@
 source ./common.sh
 RELEASE_TYPE=$1
 if [ -z "$RELEASE_TYPE" ]; then
-  echo "No RELEASE_TYPE provided. Running in default mode."
+  echo "No RELEASE_TYPE provided. Shallow deploy in progress."
   RELEASE_TYPE="default"
 fi
 
 set -e
 
-log "🚀 Starting minikube..."
-minikube start
+run_tests_locally
 
 log "🚀 getting k8ts ready..."
 eval "$(minikube docker-env)"
 docker build -t $FAPI_IMAGE_NAME .
-minikube image load  $FAPI_IMAGE_NAME
+#minikube image load  $FAPI_IMAGE_NAME
 if [ "$RELEASE_TYPE" == "ff" ]; then
  (
   set +e
@@ -23,7 +22,7 @@ if [ "$RELEASE_TYPE" == "ff" ]; then
   kubectl apply -f k8s/
 )
 else
-  kubectl rollout restart deployment fastapi
+  kubectl rollout restart deployment fastapi-deployment
 fi
 
 kubectl port-forward service/fastapi-service $FAPI_KUBE_PORT:$FAPI_LOCAL_PORT
