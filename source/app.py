@@ -1,6 +1,7 @@
-from fastapi import FastAPI, Response, Depends
+from fastapi import FastAPI, Response, Depends, HTTPException
 from source.dao.profile_dao import ProfileDao
 from source.models.profile import ProfileModel
+from source.models.InsertProfile import InsertProfileModel
 import logging
 
 app = FastAPI()
@@ -31,3 +32,19 @@ def read_root():
 def get_random_profile(dao: ProfileDao = Depends(get_dao)):
     profile = dao.fetch_random_profile()
     return profile or {"error": "no profiles found"}
+
+
+@app.get("/profiles/profile/{profile_id}", response_model=ProfileModel)
+def get_random_profile(profile_id: int, dao: ProfileDao = Depends(get_dao)):
+    profile = dao.get_profile_by_id(profile_id)
+    if profile is None:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile
+
+
+@app.post("/profiles", status_code=201, response_model=ProfileModel)
+def create_profile(profile: InsertProfileModel, dao: ProfileDao = Depends(get_dao)):
+    profile = dao.insert_profile(profile.name, profile.description)
+    if profile is None:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return profile

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi
+  template:
+    metadata:
+      labels:
+        app: fastapi
+    spec:
+      containers:
+      - name: fastapi
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        env :
+        - name: DB_PASS
+          value: "pass123"
+        - name: DB_USER
+          value: "aiuser"
+        - name: DB_NAME
+          value: "profiledb"
+        - name: DB_HOST
+          value: "postgres-0.postgres.default.svc.cluster.local"
+        - name: DB_PORT
+          value: "5432"
